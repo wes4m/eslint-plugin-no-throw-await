@@ -24,12 +24,12 @@ Now assume you don't know what `foo` does. Or you don't want to read every async
 ```typescript
 try { await foo() } catch (e) { }
 ```
-When/how do you propgate an error to the caller? or do you silence everything throuh a try catch? What if you have a series of async functions. But you don't want one throw to stop everything. Do you just wrap every single one in a try-catch. Or worse, use `.catch` nesting hell. There are many other examples of how bad this trycatching can get, amongst other issues with throwing in an async func.
+When/how do you propgate an error to the caller? or do you silence everything throuh a try catch? What if you have a series of async functions. But you don't want one throw to stop everything. Do you just wrap every single one in a try-catch. Or worse, use `.catch` for a quick nesting hell trip. There are many other examples of how bad this trycatching can get, amongst other issues with throwing in an async func.
 
-The goal of this plugin is to treat every promise as unsafe, which they are, and only allow awaiting a safe promise. A safe promise in this case means one that will not crash the application if left outside of a try-catch (will never throw). To to that, a linter rule will prevent you from awaiting a promise unless it's wrapped by a `awaitable` function.
+The goal of this plugin is to treat every promise as unsafe, which they are, and only allow awaiting a safe promise. A safe promise in this case means one that will not crash the application if left outside of a try-catch (will never throw). To to that, a linter rule will prevent you from awaiting a promise unless it's wrapped by an `awaitable` function.
 
 ## awaitable
-A function that turns unsafe promises into safe promises. One implementation (golang like error handling):
+Turns any unsafe promise into safe promise. One implementation (golang like error handling):
 ```typescript
 /**
  * Guarantees that a promise throw will be handled and returned gracefully as an error if any
@@ -44,9 +44,8 @@ A function that turns unsafe promises into safe promises. One implementation (go
 async function awaitable<R, E = Error> (
   fn: Promise<R>
 ): Promise<[R | null, E | null]> {
-  // eslint-disable-next-line no-try-catch/no-try-catch
   try {
-    // eslint-disable-next-line no-try-catch/no-direct-await
+    // eslint-disable-next-line no-throw-await/no-direct-await
     const data: R = await fn
     return [data, null]
   } catch (error: any) {
