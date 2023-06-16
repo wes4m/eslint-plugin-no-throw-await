@@ -37,19 +37,21 @@ Turns any unsafe promise into safe promise. One implementation (golang like erro
  * Result and error type can be specified through awaitable<ResultType, ErrorType>
  * @param fn Promise
  * @returns Promise<[result, error]>
- * - `result`: Returned on success, null on throw (Infered type of `fn`)
+ * - `result`: Always returned, but internally it's null on fail (Infered type of `fn`)
+ * Not checking for erros and directly using result will lead to major issues. Always check error.
  * - `error`: Null on success, returned on throw (Default to Error)
  */
+/* See: https://github.com/wes4m/eslint-plugin-no-throw-await */
 /* Modified version from karanpratapsingh */
-async function awaitable<R, E = Error> (
+export default async function awaitable<R, E = Error> (
   fn: Promise<R>
-): Promise<[R | null, E | null]> {
+): Promise<[R, E | null]> {
   try {
     // eslint-disable-next-line no-throw-await/no-direct-await
     const data: R = await fn
     return [data, null]
   } catch (error: any) {
-    return [null, error]
+    return [null as R, error]
   }
 }
 ```
